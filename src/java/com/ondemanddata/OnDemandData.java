@@ -14,8 +14,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,7 +71,7 @@ public class OnDemandData implements Serializable {
     System.out.println("Inserting " + count + " customers...");
     String[] countries = {"Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"};
     Random rand = new Random();
-    final int batchSize = 1000;  // Use constant for batch size
+    final int batchSize = 1000;  
 
     try (Connection conn = DBConnection.getConnection();
          PreparedStatement stmt = conn.prepareStatement("INSERT INTO customers(name, country, date) VALUES (?, ?, ?)")) {
@@ -85,16 +83,13 @@ public class OnDemandData implements Serializable {
             stmt.setString(2, countries[rand.nextInt(countries.length)]);
             stmt.setDate(3, new Date(System.currentTimeMillis()));
             stmt.addBatch();
-
-            // Execute batch every 1000 records, but not at i=0
             if (i > 0 && (i + 1) % batchSize == 0) {
                 stmt.executeBatch();
-                conn.commit();  // Commit after each batch
+                conn.commit();  
                 System.out.println("Inserted " + (i + 1) + " records");
             }
         }
         
-        // Execute remaining records in the batch
         stmt.executeBatch();
         conn.commit();
         System.out.println("Insert complete. Total inserted: " + count);
